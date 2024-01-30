@@ -251,13 +251,16 @@ func (r *Reconciler) reconcile(ctx context.Context, spcps *secretsstorev1.Secret
 	// after the provider mount request is complete
 	var requiresUpdate bool
 	var providerName string
+	podName := spcps.Status.PodName
+	podNamespace := spcps.Namespace
+	secretProviderClass := spcps.Status.SecretProviderClassName
 
 	defer func() {
 		if err != nil {
-			r.reporter.reportRotationErrorCtMetric(ctx, providerName, errorReason, requiresUpdate)
+			r.reporter.reportRotationErrorCtMetric(ctx, providerName, errorReason, podName, podNamespace, secretProviderClass, requiresUpdate)
 			return
 		}
-		r.reporter.reportRotationCtMetric(ctx, providerName, requiresUpdate)
+		r.reporter.reportRotationCtMetric(ctx, providerName, podName, podNamespace, secretProviderClass, requiresUpdate)
 		r.reporter.reportRotationDuration(ctx, time.Since(begin).Seconds())
 	}()
 
